@@ -1,8 +1,9 @@
 import cookieParser from "cookie-parser"
 import express from "express"
 import cors from "cors"
-import connectdb from "./models/db.js"
+import connectdb from "./configs/db.js"
 import  "dotenv/config"
+import userRouter from "./routes/userRoutes.js"
 
 const app = express()
 const port = process.env.PORT || 4000
@@ -18,6 +19,8 @@ app.use(cors({origin : allowedOrigins , credentials: true   }))
 app.get('/', (req, res) => 
     res.send("Api is working ")
 )
+
+app.use("/api/user",userRouter)
 
 app.listen(port, () => {
     console.log(`Server is successfully running on http://localhost:${port}`)
