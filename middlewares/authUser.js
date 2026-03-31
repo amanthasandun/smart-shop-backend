@@ -1,16 +1,16 @@
-import { jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const authUser = async (req , res , next ) => {
-    const token = req.cookies ; 
+    const token = req.cookies.token; 
     
     if(!token){
         return res.json({success : false , message : "not autherized"})
     }
-
+ 
     try {
         const tokenDecode = jwt.verify(token , process.env.JWT_SECRET)
         if(tokenDecode.id){
-            req.body.userId = tokenDecode.id
+            req.userId = tokenDecode.id
         }else{
             return res.json({success : false  , message : "Not Autherized"})
         }
