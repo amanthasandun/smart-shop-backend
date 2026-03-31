@@ -33,11 +33,49 @@ export const register = async (req , res )=>{
 
         return res.json({success : true , user : {email : user.email , name: user.name }})
 
-
-
     }catch(error){
         console.log(error.message);
         res.json({success : false , message : error.message})
+        
+    }
+}
+
+
+// Login user : /api/user/login
+
+export const login = async(req , res) =>{
+    try {
+        const {email , password} = req.body;
+
+        if (!email || !password){
+            return res.json({success : false , message : "Email and the password is required "})
+        }
+
+        const user = await User.findOne({email})
+
+        if(!user){
+            return res.json({success : false , message : "The provided email is invalid"})
+        }
+
+        const isMatch = await bcrypt.compare(password , user.password)
+
+        if(!isMatch) {
+            return res.json({success : false , message : "invalid email or the password"})
+        }
+
+        const token = jwt.sign({id:user._id}, process.env.JWT_SECRET , {expiresIn : "7d"})
+
+        res.cookie('token' , token , {
+            httpOnly : true , // prevent javascript to access the cookie 
+            sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax", // CSRF protection
+            maxAge : 7 * 24 * 60 * 60 * 1000 //      Cookie expire time
+        })
+
+        return res.json({success : true , user : {email : user.email , name: user.name }})
+
+    } catch (error) {
+        console.log(error.message);
+        res.json({success: false , message : error.message})
         
     }
 }
