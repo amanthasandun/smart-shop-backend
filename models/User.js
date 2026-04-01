@@ -10,6 +10,7 @@ const userSchema =new mongoose.Schema({
     minimize : false // Mongoose keeps empty objects in the DB:
 })
 
-const User = mongoose.models.user || mongoose.model("User",userSchema)
+const User = mongoose.models.User || mongoose.model("User",userSchema)
+// if there exist model calles the User then use it , otherwise create a new model
 
 export default User ;
