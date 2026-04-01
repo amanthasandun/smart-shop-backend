@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken"
 
 // login seller  : /api/seller/login
 export const sellerLogin = (res , req) => {
-    const {email , passowrd} = req.body
     try {
+        const {email , passowrd} = req.body
         if (!email || ! passowrd ){
             res.json({success : false , message : "Both fields are required"})
         }
@@ -25,5 +25,15 @@ export const sellerLogin = (res , req) => {
         }
     } catch (error) {
         res.json({success : false , message : error.message})
+    }
+}
+
+// seller Auth : /api/seller/is-auth
+export const isAuth = async (res , req) =>{
+    try {
+
+        return res.json({success : true})
+    } catch (error) {
+        res.json({success:false , message : error.message})
     }
 }
