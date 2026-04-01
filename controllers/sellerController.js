@@ -29,11 +29,27 @@ export const sellerLogin = (res , req) => {
 }
 
 // seller Auth : /api/seller/is-auth
-export const isAuth = async (res , req) =>{
+export const isAuth = async (req , res) =>{
     try {
-
         return res.json({success : true})
     } catch (error) {
         res.json({success:false , message : error.message})
+    }
+}
+
+
+// seller logout : /api/seller/logout 
+
+export const sellerLogout = async (res , req) => {
+    try {
+        res.clearCookie("sellerToken" , {
+            httpOnly : true ,
+            secure : process.env.NODE_ENV === "production" ,
+            sameSite : process.env.NODE_ENV === "production" ? "None" : "strict"
+        })
+
+        return res.json({success : true , message : "Successfully logout "})
+    } catch (error) {
+        return res.json({success : false , message :error.message})
     }
 }
