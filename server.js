@@ -4,6 +4,7 @@ import cors from "cors"
 import connectdb from "./configs/db.js"
 import  "dotenv/config"
 import userRouter from "./routes/userRoutes.js"
+import sellerRouter from "./routes/sellerRoutes.js"
 
 const app = express()
 const port = process.env.PORT || 4000
@@ -21,6 +22,7 @@ app.get('/', (req, res) =>
 )
 
 app.use("/api/user",userRouter)
+app.use("/api/seller",sellerRouter)
 
 app.listen(port, () => {
     console.log(`Server is successfully running on http://localhost:${port}`)

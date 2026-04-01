@@ -29,7 +29,7 @@ export const sellerLogin = (res , req) => {
 }
 
 // seller Auth : /api/seller/is-auth
-export const isAuth = async (req , res) =>{
+export const isSellerAuth = async (req , res) =>{
     try {
         return res.json({success : true})
     } catch (error) {
