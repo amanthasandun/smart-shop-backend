@@ -34,11 +34,18 @@ export const productList = async (req , res)=>{
 }
 
 // get product by id : /api/product/id
-export const productById = (req , res)=>{
-    
+export const productById = async (req , res)=>{
+    try {
+        const {id} = req.body
+        const product = await Product.findById(id) // this function find the object using the id that provide by the mongoose
+        res.json ({success : true , product})
+    } catch (error) {
+        console.log(error.message);
+        res.json({success : false , message : error.message})
+    }
 }
 
 // change product by id : /api/product/stock
-export const changeStock = (req , res)=>{
+export const changeStock = async (req , res)=>{
     
 }
