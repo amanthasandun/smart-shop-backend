@@ -1,5 +1,5 @@
-import Order from "../models/orders"
-import Product from "../models/product"
+import Order from "../models/orders.js"
+import Product from "../models/product.js"
 
 
 
@@ -21,7 +21,7 @@ export const placeOrderCOD = async (req , res ) =>{
         // Add the tax charge
         amount += Math.floor(amount * 0.002)
 
-        await order.create({
+        await Order.create({
             userId , 
             items ,
             amount ,
