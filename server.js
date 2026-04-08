@@ -17,11 +17,12 @@ const port = process.env.PORT || 4000
 await connectdb()
 await connectCloudinary()
 
-const allowedOrigins = ['https://localhost:5173']
+const allowedOrigins = ['http://localhost:5173']
 
 app.use(express.json()) // this is use to make the json format in the proper way
-app.use(cookieParser()) //eads cookies from the request .. Stores them in the req.cookies
-app.use(cors({origin : allowedOrigins , credentials: true   }))
+app.use(cookieParser()) //reads cookies from the request .. Stores them in the req.cookies
+
+app.use(cors({origin : allowedOrigins , credentials: true}))
 
 app.get('/', (req, res) => 
     res.send("Api is working ")

@@ -2,14 +2,14 @@ import jwt from "jsonwebtoken"
 
 
 // login seller  : /api/seller/login
-export const sellerLogin = (res , req) => {
+export const sellerLogin = (req, res) => {
     try {
-        const {email , passowrd} = req.body
-        if (!email || ! passowrd ){
+        const {email , password} = req.body
+        if (!email || ! password ){
             res.json({success : false , message : "Both fields are required"})
         }
 
-        if(email === process.env.SELLER_EMAIL && passowrd === process.env.SELLER_ENV){
+        if(email === process.env.SELLER_EMAIL && password === process.env.SELLER_PASSWORD){
             const token = jwt.sign({email:email} , process.env.JWT_SECRET , {expiresIn : "7d"})
 
             res.cookie("sellerToken" , token , {
@@ -29,7 +29,7 @@ export const sellerLogin = (res , req) => {
 }
 
 // seller Auth : /api/seller/is-auth
-export const isSellerAuth = async (req , res) =>{
+export const isSellerAuth  = async (req, res) =>{
     try {
         return res.json({success : true})
     } catch (error) {
@@ -40,7 +40,7 @@ export const isSellerAuth = async (req , res) =>{
 
 // seller logout : /api/seller/logout 
 
-export const sellerLogout = async (res , req) => {
+export const sellerLogout = async (req, res) => {
     try {
         res.clearCookie("sellerToken" , {
             httpOnly : true ,

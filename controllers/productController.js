@@ -1,11 +1,11 @@
 import { v2 as cloudinary } from "cloudinary";
-import Product from "../models/product.js"
+import Product from "../models/Product.js"
 // add product : /api/product/add
 
 
 export const addProduct = async (req , res)=>{
     try {
-        const productData = JSON.parse(req.body.productData)
+        const productData = JSON.parse(req.body.productData) // It converts a string into a JavaScript object
 
         const images = req.files
 
@@ -15,6 +15,7 @@ export const addProduct = async (req , res)=>{
                 return  result.secure_url
             })
         )
+                
         await Product.create({...productData  , image : imageUrl})
 
         res.json({success : true , message : "product added"})
@@ -27,8 +28,8 @@ export const addProduct = async (req , res)=>{
 // get product : /api/product/list
 export const productList = async (req , res)=>{
     try {
-        const product = await Product.find({})
-        res.json({ success : true , product})
+        const products = await Product.find({})
+        res.json({ success : true , products})
     } catch (error) {
         console.log(error.message);
         res.json({success : false  , message : error.message})
