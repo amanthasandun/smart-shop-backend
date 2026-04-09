@@ -1,6 +1,7 @@
 import Order from "../models/Orders.js"
 import Product from "../models/Product.js"  
 import Stripe from "stripe"
+import User from "../models/User.js"
 
 
 //place Order cod : /api/order/cod
@@ -35,7 +36,7 @@ export const placeOrderCOD = async (req , res ) =>{
         return res.json({success : true  , message : "Order places successfully "})
 
     } catch (error) {
-        return ({success:false , message : error.message})
+        return res.json({success:false , message : error.message})
     }
 }
 
@@ -78,11 +79,15 @@ export const placeOrderStripe = async (req , res ) =>{
         })
 
         // stripe gateway initialize 
-
-        const stripeInstance = new Stripe(process.env.STRIPE_SECREATE_KEY)
+        
+        const stripeSecretKey = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECREATE_KEY
+        if (!stripeSecretKey) {
+            return res.json({ success: false, message: "Stripe secret key is missing" })
+        }
+        const stripeInstance = new Stripe(stripeSecretKey)
 
         // Create line items for the stripe 
-        const line_Items = productData.map((item)=>{
+        const line_items = productData.map((item)=>{
             return{
                 price_data : {
                     currency : "usd" ,
@@ -94,8 +99,6 @@ export const placeOrderStripe = async (req , res ) =>{
                 quantity : item.quantity
             }
         })
-
-
         // create session
 
         const session = await stripeInstance.checkout.sessions.create({
@@ -112,8 +115,67 @@ export const placeOrderStripe = async (req , res ) =>{
         return res.json({success : true  , url : session.url})
 
     } catch (error) {
-        return ({success:false , message : error.message})
+        return res.json({success:false , message : error.message})
     }
+}
+
+//Strie webhooks to verify the payments Action : /stripe
+export const stripeWebhooks = async (request , response )=>{
+    // Stripe gateway initialize 
+    const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY)
+    const sig = request.headers["stripe-signature"]
+    let event;
+
+    try {
+        event = stripeInstance.webhooks.constructEvent(
+            request.body,
+            sig ,
+            process.env.STRIPE_WEBHOOK_SECRET , 
+        )
+    } catch (error) {
+        response.status(400).send(`webhook mwssage ${error.message}`)
+    }
+
+    // handle the event 
+
+    switch (event.type) {
+
+
+        case "payment_intent.succeeded":{
+            const paymentIntent = event.data.object
+            const paymentIntentId = paymentIntent.id
+
+            // getting session metadata
+            const session = await stripeInstance.checkout.sessions.list({
+                payment_intent : paymentIntentId
+            })
+
+            const {orderId , UserId} = session.data[0].metadata
+
+            // mark payment as paid 
+            await Order.findByIdAndUpdate(orderId , {isPaid : true})
+            // clear the user cart data
+            await User.findByIdAndUpdate(userId ,{cartItems : {}})
+            break;
+        }
+        
+        case "payment_intent.payment_failed" : {
+            const paymentIntent = event.data.object
+            const paymentIntentId = paymentIntent.id
+
+            // getting session metadata
+            const session = await stripeInstance.checkout.sessions.list({
+                payment_intent : paymentIntentId
+            })
+
+            const {orderId} = session.data[0].metadata
+            await Order.findByIdAndDelete(orderId)
+        }
+        default:
+            console.error(`Unhandled Event type ${event.type}`)
+            break;
+    }
+    response.json({received : true})
 }
 
 // Get Orders by the users ID : /api/order/user
